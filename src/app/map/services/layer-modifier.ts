@@ -1,18 +1,21 @@
+import { LOWERING_TERRAIN } from './mapConstants'
+
 export class LayerModifier {
 
   private loweringFactors(height: number, width:number) {
     const factors: number[][] = []
+
     for(let y=0; y<height; y++){
       factors.push([]);
       for(let x=0; x<width; x++){
-        if(y<8 && x>=y && x<width-y) {
-          factors[y][x] = y/8
-        } else if (x<8 && y>=x && y<height-x) {
-          factors[y][x] = x/8
-        } else if (y > height -1 -8 && height-1-y <= x && y>=x) {
-          factors[y][x] = (height-1-y)/8
-        } else if (x>width-1-8 && x>=width-1-y && y<x ) {
-          factors[y][x] = (width-1-x)/8
+        if(y<LOWERING_TERRAIN && x>=y && x<width-y) {
+          factors[y][x] = y/LOWERING_TERRAIN
+        } else if (x<LOWERING_TERRAIN && y>=x && y<height-x) {
+          factors[y][x] = x/LOWERING_TERRAIN
+        } else if (y > height -1 -LOWERING_TERRAIN && height-1-y <= x && y>=x) {
+          factors[y][x] = (height-1-y)/LOWERING_TERRAIN
+        } else if (x>width-1-LOWERING_TERRAIN && x>=width-1-y && y<x ) {
+          factors[y][x] = (width-1-x)/LOWERING_TERRAIN
         } else {
           factors[y][x] = 1
         }

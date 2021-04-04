@@ -1,137 +1,89 @@
-const MMU = 8;
+import { SQUARES, NODES, SQUARE_RESOLUTION } from './mapConstants'
+
+interface Vector {
+  x: number;
+  y: number;
+}
 
 export class LayerGenerator {
-  private layer0:  number[][]= [];
-  private sample: number[][] = []
-  private stretchedSample: number[][] = [];
-  private layer1: number[][] = [];
-  private layer2: number[][] = [];
-  private layer3: number[][] = [];
-  private layer4: number[][] = [];
 
-  public width: number;
-  public height: number;
-  public finalLayer: number[][] = [];
+  private grid: Vector[][] = []
 
-  constructor(x: number, y:number){
-      this.width = MMU * x;
-      this.height = MMU * y;
+  // linear
+  private interpolate(a0: number, a1: number, w: number){
+    return (a1-a0)*w + a0;
   }
 
-  private createFirstLayer() : number[][] {
-      const layer: number[][] = [];
-      for (let y = 0; y<this.height; y++){
-          const row = [];
-          for (let x = 0; x<this.width; x++) {
-              row[x] = Math.round(Math.random())
-          }
-          layer.push(row)
+  // random vector insidethe square
+  private randomGradient(): Vector{
+    let theta = Math.random()*2*Math.PI
+    return {
+      x: Math.cos(theta),
+      y: Math.sin(theta)
+    }
+  }
+
+  private fillGrid() {
+    for(let y=0; y<NODES; y++){
+      let row = []
+      for (let x=0; x< NODES; x++){
+        row.push(this.randomGradient())
       }
-      return layer;
+      this.grid.push(row)
+    }
   }
 
-  private getLayerSample (layer: number[][]):number[][]{
-      const sample:number[][] = [];
-      for (let y = 0; y<this.height/2+1; y++){
-          const row = []
-          for (let x = 0; x<this.width/2+1; x++) {
-              row[x] = layer[y][x]
-          }
-          sample.push(row)
+  // the sum of the two vectors
+  private dotGridGradient(ix: number, iy:number, x:number, y:number){
+    let gradient = this.grid[iy][ix];
+
+    // distance vector
+    const dx = x - ix
+    const dy = y - iy;
+
+    return dx * gradient.x + dy * gradient.y;
+  }
+
+  private smoothstep(value: number){
+    if (value < 0) return 0;
+    if (value >= 1) return 1;
+    return 3*Math.pow(value,2)-2*Math.pow(value, 3)
+  }
+
+  private perlin(x: number,y: number){
+    const x0 = Math.floor(x);
+    const x1 = x0 + 1;
+    const y0 = Math.floor(y);
+    const y1 = y0 + 1;
+
+    // float - integer
+    const sx = x - x0;
+    const sy = y - y0;
+
+    let n0, n1;
+    n0 = this.dotGridGradient(x0, y0, x, y); // top left
+    n1 = this.dotGridGradient(x1, y0, x, y); // top right
+    const ix0 = this.interpolate(n0, n1, sx); // top value
+
+    n0 = this.dotGridGradient(x0, y1, x, y); // bottom left
+    n1 = this.dotGridGradient(x1, y1, x, y); // botom right
+    const ix1 = this.interpolate(n0, n1, sx); // bottom value
+
+    const value = this.interpolate(ix0, ix1, sy); // center value
+    // values are from a range of -0.5 to 0.5
+    return this.smoothstep(value + 0.5);
+  }
+
+  public generateLayer(){
+    this.fillGrid()
+    let layer = []
+    for(let y=0; y<SQUARES; y += 1/SQUARE_RESOLUTION){
+      let row = []
+      for (let x=0; x<SQUARES; x+= 1/SQUARE_RESOLUTION){
+        row.push(this.perlin(x,y))
       }
-      return sample;
-  }
-
-  private static stretchLayer (layer:number[][]):number[][]{
-      const stretchedLayer: number[][] = [];
-      for (let y = 0; y < layer.length; y++){
-          const row = [];
-          const nextRow = [];
-          for (let x = 0; x < layer[y].length; x++) {
-              if(x<layer[y].length -1) {
-                  row[x * 2] = layer[y][x]
-                  row[x * 2 + 1] = -1
-                  nextRow[x * 2] = -1
-                  nextRow[x * 2 + 1] = -1
-              } else { // last column
-                  row[x * 2] = layer[y][x]
-                  nextRow[x * 2] = -1
-              }
-          }
-          stretchedLayer.push(row)
-          if (y<layer.length-2) {
-              stretchedLayer.push(nextRow)
-          }
-          if(y === layer.length -1) {
-              const lastRow = []
-              for(let x=0; x<layer[y].length; x++) {
-                  lastRow[x * 2] = layer[y][x]
-                  lastRow[x * 2 + 1] = -1
-              }
-              stretchedLayer.push(lastRow)
-          }
-      }
-      return stretchedLayer
-  }
-
-  private static interpolateLayer(layer:number[][]){
-      const nextLayer: number[][] = [];
-      for (let y = 0; y < layer.length-1; y++){
-          const row = []
-          if(y%2==0) {
-              for(let x=0; x < layer[y].length-1; x++) {
-                  if(x%2==1){
-                      const interpolatedValue = layer[y][x-1]*0.5 + layer[y][x+1]*0.5
-                      row.push(interpolatedValue)
-                  } else {
-                      row.push(layer[y][x])
-                  }
-              }
-          }
-          else {
-              for(let x=0; x < layer[y].length-1; x++) {
-                  if(x%2==0) {
-                      const interpolatedValue = layer[y-1][x]*0.5 + layer[y+1][x]*0.5
-                      row.push(interpolatedValue)
-                  } else {
-                       const interpolatedValue = layer[y-1][x-1]*0.25 + layer[y-1][x+1]*0.25
-                          + layer[y+1][x-1]*0.25 + layer[y+1][x+1]*0.25
-                      row.push(interpolatedValue)
-                  }
-              }
-          }
-          nextLayer.push(row)
-      }
-      return nextLayer
-  }
-
-  private createNextLayer(prevLayer: number[][]):number[][]{
-      this.sample = this.getLayerSample(prevLayer);
-      this.stretchedSample = LayerGenerator.stretchLayer(this.sample);
-      return LayerGenerator.interpolateLayer(this.stretchedSample)
-  }
-
-  private mergeLayers(): number[][]{
-      const map: number[][]=[]
-      for(let y=0; y<this.height; y++){
-          const row = []
-          for(let x = 0; x< this.width; x++){
-             row[x]= this.layer4[y][x] * 0.5 + this.layer3[y][x] * 0.25 +
-              this.layer2[y][x] * 0.125 + this.layer1[y][x] * 0.0625
-              + this.layer0[y][x] * 0.03125
-          }
-          map.push(row)
-      }
-      return map
-  }
-
-  public generateLayer():number[][]{
-      this.layer0 = this.createFirstLayer();
-      this.layer1 = this.createNextLayer(this.layer0);
-      this.layer2 = this.createNextLayer(this.layer1);
-      this.layer3 = this.createNextLayer(this.layer2);
-      this.layer4 = this.createNextLayer(this.layer3);
-      this.finalLayer = this.mergeLayers();
-      return this.finalLayer;
+      layer.push(row)
+    }
+    return layer
   }
 }

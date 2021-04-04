@@ -1,5 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { MapService } from './services/map.service';
+import { ITerrain, IUpdatedTerrain } from './services/mapConstants'
 
 export type CtxType = CanvasRenderingContext2D | null;
 
@@ -13,10 +14,13 @@ export class MapComponent implements AfterViewInit {
   canvas!: ElementRef<HTMLCanvasElement>;
 
   private ctx!: CtxType;
+  public terrainConfig!: ITerrain;
 
   constructor(
-    private mapService: MapService
-  ) {}
+    public mapService: MapService
+  ) {
+    this.terrainConfig = this.mapService.terrainConfig
+  }
 
   ngAfterViewInit(): void {
     this.ctx = this.canvas.nativeElement.getContext('2d');
@@ -26,5 +30,9 @@ export class MapComponent implements AfterViewInit {
 
   drawMap(){
     this.mapService.drawMap()
+  }
+
+  handleConfigValueChanged(newValue: IUpdatedTerrain){
+    this.mapService.changeConfigValue(newValue)
   }
 }

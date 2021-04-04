@@ -1,0 +1,24 @@
+.terrain-input {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: "row";
+  align-items: center;
+  width: max-content;
+  padding: 5px 0;
+
+  &__label {
+    font-size: 16px;
+    padding: 0 20px;
+    text-transform: capitalize;
+    width: 60px;
+  }
+  &__label--small {
+    text-align: center;
+    width: 40px;
+  }
+  &__button {
+    width: 60px;
+    height: 30px;
+    margin: 0 10px;
+  }
+}

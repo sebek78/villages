@@ -12,7 +12,8 @@ import { terrain, ITerrain, IUpdatedTerrain, terrainKeys } from './mapConstants'
 export class MapService {
   private ctx: CtxType = null;
   private mapRenderer: MapRenderer | null = null;
-  private layer: number[][] = [];
+  private terrain: number[][] = [];
+  private forests: number[][] = [];
   public terrainConfig: ITerrain;
 
   constructor() {
@@ -30,14 +31,16 @@ export class MapService {
     const layerDataGetter = new LayerDataGetter();
     const layerModifier = new LayerModifier();
 
-    this.layer = layerGenerator.generateLayer();
-    const layerData = layerDataGetter.getLayerData(this.layer)
+    this.terrain = layerGenerator.generateLayer();
+    this.terrain = layerModifier.loweringTerrain(this.terrain);
+    this.forests = layerGenerator.generateLayer()
+    const layerData = layerDataGetter.getLayerData(this.forests)
     console.log(layerData)
-    this.layer = layerModifier.loweringTerrain(this.layer);
   }
 
   public drawMap() {
-    if(this.mapRenderer) this.mapRenderer.drawMap(this.layer, this.terrainConfig)
+    // if(this.mapRenderer) this.mapRenderer.drawRawLayer(this.forests)
+    if(this.mapRenderer) this.mapRenderer.drawMap(this.terrain, this.terrainConfig, this.forests)
   }
 
   public changeConfigValue(newValue: IUpdatedTerrain){

@@ -1,8 +1,31 @@
 <canvas #canvas width="640" height="640"></canvas>
 <div *ngIf="terrainConfig">
-  <app-terrain-range-input  [terrain]="terrainConfig.ocean" (terrainValueChanged)="handleConfigValueChanged($event)" ></app-terrain-range-input>
-  <app-terrain-range-input  [terrain]="terrainConfig.plains" (terrainValueChanged)="handleConfigValueChanged($event)"></app-terrain-range-input>
-  <app-terrain-range-input  [terrain]="terrainConfig.hills" (terrainValueChanged)="handleConfigValueChanged($event)"></app-terrain-range-input>
-  <app-terrain-range-input  [terrain]="terrainConfig.mountains" (terrainValueChanged)="handleConfigValueChanged($event)" ></app-terrain-range-input>
+  <app-terrain-range-input
+    [minValue]="0"
+    [maxValue]="terrainConfig.plains.level"
+    [terrain]="terrainConfig.ocean"
+    (terrainValueChanged)="handleConfigValueChanged($event)"
+  ></app-terrain-range-input>
+  <app-terrain-range-input
+    [minValue]="terrainConfig.ocean.level"
+    [maxValue]="terrainConfig.hills.level"
+    [terrain]="terrainConfig.plains"
+    (terrainValueChanged)="handleConfigValueChanged($event)"
+  ></app-terrain-range-input>
+  <app-terrain-range-input
+    [minValue]="terrainConfig.plains.level"
+    [maxValue]="terrainConfig.mountains.level"
+    [terrain]="terrainConfig.hills"
+    (terrainValueChanged)="handleConfigValueChanged($event)"
+  ></app-terrain-range-input>
+  <app-terrain-range-input
+    [minValue]="terrainConfig.hills.level"
+    [terrain]="terrainConfig.mountains"
+    (terrainValueChanged)="handleConfigValueChanged($event)"
+  ></app-terrain-range-input>
+  <app-terrain-range-input
+  [terrain]="terrainConfig.forest"
+  (terrainValueChanged)="handleConfigValueChanged($event)"
+></app-terrain-range-input>
 </div>
 

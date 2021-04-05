@@ -8,11 +8,20 @@ export class MapRenderer {
     private terrainConfig: ITerrain
   ) { }
 
-  public drawMap(layer: number[][], terrainConfig: ITerrain) {
+  public drawMap(terrain: number[][], terrainConfig: ITerrain, forests:number[][]) {
     this.terrainConfig = terrainConfig
-    layer.forEach((row,y)=>{
+    terrain.forEach((row,y)=>{
       row.forEach((number,x)=>{
           this.drawField(y,x, number)
+      })
+    })
+    forests.forEach((row,y)=>{
+      row.forEach((number,x)=>{
+          if(terrain[y][x] > terrainConfig.ocean.level && terrain[y][x]<terrainConfig.plains.level) {
+            if(number <= terrainConfig.forest.level) {
+              this.drawForestField(y,x)
+            }
+          }
       })
     })
   }
@@ -25,8 +34,15 @@ export class MapRenderer {
     })
   }
 
-  private drawField(y: number,x:number, number:number):void{
+  private drawRawField(y: number,x:number, number:number):void{
+    if(this.ctx){
+      const color = 255*number;
+      this.ctx.fillStyle = `rgb(${color},${color},${color})`
+      this.ctx.fillRect(x*FIELD_UNIT,y*FIELD_UNIT,FIELD_UNIT,FIELD_UNIT)
+    }
+  }
 
+  private drawField(y: number,x:number, number:number):void{
     const { ocean, plains, hills, mountains } = this.terrainConfig;
 
     if(this.ctx){
@@ -62,11 +78,13 @@ export class MapRenderer {
     }
   }
 
-  private drawRawField(y: number,x:number, number:number):void{
+  private drawForestField(y: number,x:number):void{
     if(this.ctx){
-      const color = 255*number;
-      this.ctx.fillStyle = `rgb(${color},${color},${color})`
-      this.ctx.fillRect(x*FIELD_UNIT,y*FIELD_UNIT,FIELD_UNIT,FIELD_UNIT)
+      this.ctx.fillStyle = this.terrainConfig.forest.color;
+      // this.ctx.fillRect(x*FIELD_UNIT,y*FIELD_UNIT,FIELD_UNIT,FIELD_UNIT)
+      this.ctx.beginPath()
+      this.ctx.arc(x*FIELD_UNIT+FIELD_UNIT/2,y*FIELD_UNIT+FIELD_UNIT/2,FIELD_UNIT-2,0,2*Math.PI)
+      this.ctx.stroke()
     }
   }
 }

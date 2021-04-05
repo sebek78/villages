@@ -4,7 +4,7 @@ export const SQUARES = 8;
 export const NODES = SQUARES + 1;
 export const LOWERING_TERRAIN = 16; // fields from the border of the map, to makes the island
 
-export type terrainKeys = 'ocean' | 'plains' | 'hills' | 'mountains'
+export type terrainKeys = 'ocean' | 'plains' | 'hills' | 'mountains' | 'forest'
 
 export interface ITerrainType {
   level: number;
@@ -18,6 +18,7 @@ export interface ITerrain {
   plains: ITerrainType;
   hills: ITerrainType;
   mountains: ITerrainType;
+  forest: ITerrainType;
 }
 
 export interface IUpdatedTerrain {
@@ -49,5 +50,11 @@ export const terrain: ITerrain = {
     color: '#333300',
     label: 'góry',
     key: 'mountains'
+  },
+  forest: {
+    level: 0.30,
+    color: '#006600',
+    label: 'las',
+    key: 'forest'
   }
 }

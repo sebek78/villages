@@ -1,8 +1,25 @@
 <div class="terrain-input">
   <p class="terrain-input__label">{{terrain?.label || ''}}</p>
-  <button class="terrain-input__button" (click)="handleClick(terrain?.key, -0.05)">-0,05</button>
-  <button  class="terrain-input__button" (click)="handleClick(terrain?.key, -0.01)">-0,01</button>
-  <p class="terrain-input__label--small">{{terrain?.level?.toFixed(2) || ''}}</p>
-  <button class="terrain-input__button" (click)="handleClick(terrain?.key, 0.01)">+0,01</button>
-  <button class="terrain-input__button" (click)="handleClick(terrain?.key, 0.05)">+0,05</button>
+  <p class="terrain-input__label terrain-input__label-small">{{ 'Min: ' + minValue.toFixed(2) }}</p>
+  <button
+    [disabled]="terrain!.level <= minValue"
+    class="terrain-input__button"
+    (click)="handleClick(terrain?.key, -0.05)"
+  >-0,05</button>
+  <button
+  [disabled]="terrain!.level <= minValue"
+    class="terrain-input__button"
+    (click)="handleClick(terrain?.key, -0.01)"
+  >-0,01</button>
+  <p class="terrain-input__label terrain-input__label--small">{{ 'Max: ' + terrain?.level?.toFixed(2) }}</p>
+  <button
+    [disabled]="terrain!.level >= maxValue"
+    class="terrain-input__button"
+    (click)="handleClick(terrain?.key, 0.01)"
+  >+0,01</button>
+  <button
+    [disabled]="terrain!.level >= maxValue"
+    class="terrain-input__button"
+    (click)="handleClick(terrain?.key, 0.05)"
+  >+0,05</button>
 </div>

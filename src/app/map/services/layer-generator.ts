@@ -24,6 +24,7 @@ export class LayerGenerator {
   }
 
   private fillGrid() {
+    this.grid = []
     for(let y=0; y<NODES; y++){
       let row = []
       for (let x=0; x< NODES; x++){

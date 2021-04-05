@@ -8,6 +8,8 @@ import { ITerrainType, IUpdatedTerrain, terrainKeys } from '../../services/mapCo
 })
 export class TerrainRangeInputComponent implements OnInit {
   @Input() terrain: ITerrainType | undefined
+  @Input() minValue: number = 0
+  @Input() maxValue: number = 1
   @Output() terrainValueChanged = new EventEmitter<IUpdatedTerrain>()
 
   constructor() { }
